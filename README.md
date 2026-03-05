@@ -1,3 +1,7 @@
+```
+git add . ; git commit -m "Update scripts" ; git push
+```
+
 # PentestMCP — Educational Web Pentest Server
 
 A Kali Linux-based MCP server exposing common web penetration testing tools 

@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  pentest-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pentest-mcp:latest
+    container_name: pentest-mcp
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+    # Required capabilities for nmap raw socket scanning
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+
+    environment:
+      - MAX_SCAN_TIMEOUT=300
+      - TARGET_NETWORK=${TARGET_NETWORK:-}
+
+    # Shared scan results directory (optional)
+    volumes:
+      - ./scan-results:/home/pentester/results
+
+    # Network: use host network for LAN scanning, or bridge for isolated targets
+    # Uncomment ONE of the following:
+    network_mode: bridge
+    # network_mode: host   # Use this to scan your local LAN
+
+volumes: {}

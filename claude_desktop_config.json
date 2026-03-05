@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "pentest": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--cap-add", "NET_RAW",
+        "--cap-add", "NET_ADMIN",
+        "--security-opt", "no-new-privileges:true",
+        "pentest-mcp:latest"
+      ]
+    }
+  }
+}

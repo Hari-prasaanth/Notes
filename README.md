@@ -267,12 +267,3 @@ All tool endpoints support **SSE streaming** when called with `?stream=1` or `Ac
 ```
 
 Node.js v18+ recommended.
-
----
-
-## 🎓 Built For
-
-**Vel Tech High Tech Dr. Rangarajan Dr. Sakunthala Engineering College**
-Cybersecurity Lab — AI-Assisted Penetration Testing Course
-
-> KaliAI is an educational tool. All penetration testing must be performed only on systems where you have explicit written permission.

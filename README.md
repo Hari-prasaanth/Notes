@@ -1,151 +1,278 @@
+# ⚔️ KaliAI — Pentesting Intelligence Platform
+
+> An AI-powered pentesting assistant that connects GPT-4o to your Kali Linux machine via a local MCP server, with a live streaming terminal, auto-install, and self-healing agent capabilities. Built for teaching students offensive security.
+
+---
+
+## 📸 What It Does
+
+- 💬 **Chat with GPT-4o** to run any Kali Linux tool using natural language
+- 🖥️ **Live terminal panel** streams real command output as it runs
+- 📦 **Auto-installs missing tools** via `apt` or `pip` on the fly
+- 🔧 **Self-healing agent** — if a tool fails, it fetches docs and retries with corrected flags
+- ⏹️ **Stop button** kills both the AI stream and the running process on Kali instantly
+- 🔀 **Switch AI models** — GPT-4o, GPT-4o Mini, GPT-4 Turbo, o1, and more
+- 🧰 **46 tools** across Recon, Web App, Network, and Utils categories
+
+---
+
+## 🏗️ Architecture
+
 ```
-git add . ; git commit -m "Update scripts" ; git push
+[ Browser — index.html ]
+        ↕  HTTP / SSE
+[ MCP Server — server.js ]   ← runs on your Kali Linux VM/Docker
+        ↕  exec / spawn
+[ Kali Tools: nmap, nikto, gobuster, sqlmap, hydra... ]
+
+[ Browser ] ←→ [ OpenAI GPT-4o API ]  (direct from browser)
 ```
 
-# PentestMCP — Educational Web Pentest Server
-
-A Kali Linux-based MCP server exposing common web penetration testing tools 
-to Claude Desktop. For authorized, educational use only.
+The web app is served **by** the MCP server itself at `http://<kali-ip>:3001` — this avoids all CORS and mixed-content issues.
 
 ---
 
-## ⚠️ Legal Disclaimer
+## 🚀 Setup
 
-This tool is for **authorized security testing and education only**.  
-Only use against systems you own or have explicit written permission to test.  
-Unauthorized scanning is illegal in most jurisdictions.
-
----
-
-## Tools Included
-
-| Tool              | Command       | Purpose                          |
-|-------------------|---------------|----------------------------------|
-| nmap_scan         | nmap          | Port/service/version detection   |
-| nmap_port_scan    | nmap          | Targeted port range scanning     |
-| nmap_vuln_scan    | nmap --script | Known CVE detection via scripts  |
-| nikto_scan        | nikto         | Web server vulnerability scan    |
-| sqlmap_scan       | sqlmap        | SQL injection testing            |
-| wpscan_scan       | wpscan        | WordPress vulnerability scanner  |
-| dirb_scan         | dirb          | Web directory brute-force        |
-| searchsploit_query| searchsploit  | ExploitDB keyword search         |
-| searchsploit_cve  | searchsploit  | ExploitDB CVE lookup             |
-| dns_lookup        | dig           | DNS A/MX/NS/TXT record lookup    |
-| whois_lookup      | whois         | WHOIS domain/IP info             |
-| ping_host         | ping          | Host reachability check          |
-
----
-
-## Prerequisites
-
-- Docker Desktop installed and running
-- Claude Desktop installed
-- ~4GB disk space for Kali image + tools
-
----
-
-## Setup
-
-### 1. Build the Docker Image
+### 1. On Your Kali Linux Machine
 
 ```bash
-# From the directory containing Dockerfile and server.py
-docker build -t pentest-mcp:latest .
+# Create project folder
+mkdir -p ~/Desktop/Agent && cd ~/Desktop/Agent
+
+# Install Node.js dependencies
+npm init -y
+npm install express cors
+
+# Copy server.js and index.html into this folder
+# Then start the server
+node server.js
 ```
 
-This takes 5–15 minutes on first build (downloads Kali + tools).
+You should see:
+```
+🔥  KaliAI MCP Server v3.0  →  http://0.0.0.0:3001
+📡  Streaming: SSE enabled on all tool endpoints
+🔧  Auto-install: 40+ tools covered
+📖  Self-heal docs: GET /docs/<toolname>
+```
 
-### 2. Configure Claude Desktop
+### 2. Open the Web App
 
-Open your Claude Desktop config file:
+Open your browser and go to:
+```
+http://localhost:3001
+```
 
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+Or from another machine on the same network:
+```
+http://192.168.88.129:3001   ← replace with your Kali IP
+```
 
-Merge in the contents of `claude_desktop_config.json` from this repo:
+> ⚠️ **Do NOT open `index.html` directly as a `file://` URL** — the browser will block all API calls due to CORS policy. Always access via `http://`.
+
+### 3. Configure
+
+Click **⚙ Configure** in the top right and enter:
+
+| Field | Value |
+|---|---|
+| **OpenAI API Key** | Your `sk-proj-...` key from platform.openai.com |
+| **Kali MCP Server URL** | `http://localhost:3001` (or your Kali IP) |
+| **Default AI Model** | GPT-4o (recommended) |
+| **Default Target** | e.g. `172.18.0.4` or `crapi.apisec.ai` |
+
+Click **Save & Connect**. The **MCP Online** and **AI Ready** indicators in the header should both turn green.
+
+---
+
+## 🧰 Available Tools
+
+### 🔭 Recon (15)
+| Tool | Description |
+|---|---|
+| `ping_host` | Check if host is alive |
+| `nmap_scan` | Port & service detection |
+| `masscan` | Ultra-fast port scanner |
+| `arp_scan` | LAN host discovery |
+| `netdiscover` | Passive ARP discovery |
+| `dns_lookup` | A / MX / NS / TXT records |
+| `dnsrecon` | Deep DNS recon & zone transfer |
+| `fierce` | DNS subdomain brute-force |
+| `sublist3r` | Subdomain OSINT enumeration |
+| `theHarvester` | Email & host OSINT |
+| `whois_lookup` | Domain registration info |
+| `whatweb` | Web tech stack detection |
+| `wafw00f` | WAF detection |
+| `sslyze` | SSL/TLS configuration analyser |
+| `testssl` | Comprehensive TLS checker |
+
+### 🕸️ Web App (15)
+| Tool | Description |
+|---|---|
+| `nikto_scan` | Web vulnerability scanner |
+| `gobuster_dir` | Directory brute-force |
+| `gobuster_vhost` | Virtual host brute-force |
+| `feroxbuster` | Recursive content discovery |
+| `ffuf` | Fast web fuzzer |
+| `wfuzz` | Parameter & header fuzzer |
+| `dirb_scan` | Classic directory brute-force |
+| `sqlmap_scan` | SQL injection tester |
+| `xsstrike` | Advanced XSS scanner |
+| `dalfox` | XSS parameter analyser |
+| `commix` | Command injection scanner |
+| `nuclei` | Template-based vulnerability scanner |
+| `wpscan` | WordPress enumeration |
+| `curl_request` | Custom HTTP request |
+| `jwt_tool` | JWT token analyser & attacker |
+
+### 🔗 Network (14)
+| Tool | Description |
+|---|---|
+| `enum4linux` | SMB / NetBIOS enumeration |
+| `smbmap` | SMB share enumeration |
+| `smbclient` | SMB client & share access |
+| `nbtscan` | NetBIOS name scanner |
+| `crackmapexec` | SMB / LDAP / SSH network sweep |
+| `snmpwalk` | SNMP enumeration |
+| `onesixtyone` | SNMP community string scanner |
+| `smtp_user_enum` | SMTP user enumeration |
+| `hydra` | Online password brute-force |
+| `medusa` | Modular parallel brute-forcer |
+| `ncrack` | Network authentication cracker |
+| `responder` | LLMNR / NBT-NS poisoner (analyse mode) |
+| `tcpdump` | Packet capture |
+| `curl_headers` | Fetch HTTP response headers |
+
+### 🛠️ Utils (2)
+| Tool | Description |
+|---|---|
+| `searchsploit` | Search Exploit-DB |
+| `run_command` | Run any custom shell command |
+
+---
+
+## ✨ Features In Detail
+
+### Live Terminal Streaming
+Every tool streams its output character-by-character to the terminal panel on the right. Color coding:
+- 🟢 Green — stdout (normal output)
+- 🔴 Red/Orange — stderr (errors)
+- 🟡 Yellow — auto-install in progress
+- 🔵 Blue — info / self-healing messages
+
+### Auto-Install
+If a tool isn't installed when the AI calls it, the server automatically installs it:
+```
+📦 'gobuster' not found. Installing...
+$ apt-get install -y gobuster
+...
+✅ gobuster installed successfully.
+```
+The tool then runs immediately after install — no manual steps needed.
+
+### Self-Healing Agent
+If a tool fails due to bad flags or wrong syntax:
+1. The agent detects the error pattern (e.g. `unrecognized arguments`)
+2. It fetches documentation from `GET /docs/<toolname>`
+3. The docs are injected into the GPT conversation
+4. GPT re-issues the tool call with corrected parameters
+5. The corrected command runs automatically
+
+### Stop Button
+Pressing **⏹ Stop** simultaneously:
+- Aborts the OpenAI API stream
+- Sends `POST /kill` to the MCP server
+- Kills the running process **and its entire process group** on Kali with `SIGKILL`
+- Works even for long-running tools like `ffuf`, `hydra`, or `nuclei`
+
+---
+
+## 💬 Example Prompts
+
+```
+Scan 172.18.0.4 for open ports and explain all findings
+Run nikto on http://172.18.0.4 and explain the vulnerabilities
+Do a full recon on crapi.apisec.ai — DNS, WHOIS, subdomains, WAF
+Run gobuster on http://172.18.0.4 and find hidden directories
+Enumerate SMB shares on 172.18.0.4 using enum4linux and smbmap
+Test http://crapi.apisec.ai/login for SQL injection
+Explain the OWASP API Top 10 with real examples
+Search for exploits for vsftpd 2.3.4 and explain how to use them
+Run a full nuclei scan on http://172.18.0.4
+```
+
+---
+
+## 🔌 API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/` | Serves the web app (index.html) |
+| `GET` | `/health` | Server health & tool list |
+| `GET` | `/docs/:tool` | Tool usage documentation |
+| `POST` | `/tools/:name` | Run a tool (streaming with `?stream=1`) |
+| `POST` | `/run` | Run arbitrary command with streaming |
+| `POST` | `/kill` | Kill running process by sessionId or all |
+
+All tool endpoints support **SSE streaming** when called with `?stream=1` or `Accept: text/event-stream`.
+
+---
+
+## ⚠️ Security Notes
+
+- The MCP server exposes a `run_command` endpoint — **keep it on your local/lab network only**
+- Never expose port `3001` to the internet
+- Only scan systems you have **explicit permission** to test
+- This tool is designed for **educational use** in a controlled lab environment
+- The `responder` tool runs in **analyse mode (`-A`) only** by default — it listens but does not poison
+
+---
+
+## 📁 File Structure
+
+```
+~/Desktop/Agent/
+├── server.js       ← MCP server (runs on Kali)
+├── index.html      ← Web app (served by server.js)
+├── package.json
+└── node_modules/
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| MCP shows Offline | Make sure `node server.js` is running and the URL in Config is correct |
+| Terminal stays idle | You opened `index.html` as `file://` — access via `http://localhost:3001` instead |
+| Tool not found error | The agent auto-installs it — or run `apt-get install -y <tool>` manually |
+| OpenAI API error | Check your API key in ⚙ Configure — must start with `sk-` |
+| Stop doesn't kill terminal | Make sure you're on the latest `server.js` with the `/kill` endpoint |
+| `tool role` OpenAI error | Update to the latest `index.html` — self-healing logic has been fixed |
+| SSE stream drops during install | Update to latest `server.js` — heartbeat keepalive now runs during long installs |
+
+---
+
+## 📦 Dependencies
 
 ```json
 {
-  "mcpServers": {
-    "pentest": {
-      "command": "docker",
-      "args": [
-        "run", "--rm", "-i",
-        "--cap-add", "NET_RAW",
-        "--cap-add", "NET_ADMIN",
-        "--security-opt", "no-new-privileges:true",
-        "pentest-mcp:latest"
-      ]
-    }
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
   }
 }
 ```
 
-### 3. Restart Claude Desktop
-
-Fully quit and relaunch Claude Desktop. You should see "pentest" in the MCP tools menu.
+Node.js v18+ recommended.
 
 ---
 
-## Usage Examples in Claude
+## 🎓 Built For
 
-```
-Run an nmap scan on 192.168.1.10
-```
+**Vel Tech High Tech Dr. Rangarajan Dr. Sakunthala Engineering College**
+Cybersecurity Lab — AI-Assisted Penetration Testing Course
 
-```
-Check for SQL injection vulnerabilities on http://192.168.1.10/login.php
-```
-
-```
-Run a nikto scan on http://192.168.1.10
-```
-
-```
-Search for exploits related to "Apache 2.4.49"
-```
-
-```
-Enumerate WordPress users and plugins at http://192.168.1.10
-```
-
----
-
-## Scanning Your Local Network
-
-By default, Docker runs in bridge network mode — the container can reach IPs on your LAN 
-but not hosts that require raw ARP (host discovery on subnets may be limited).
-
-For full LAN scanning (e.g., scanning 192.168.1.0/24), update `docker-compose.yml` to:
-
-```yaml
-network_mode: host
-```
-
-Or add `--network host` to the args in `claude_desktop_config.json`.
-
----
-
-## Saving Scan Results
-
-A `./scan-results` volume is mounted into the container at `/home/pentester/results`.
-You can redirect output there from inside a tool call, or use the tool output directly 
-in Claude's chat.
-
----
-
-## Rebuilding After Changes
-
-```bash
-docker build --no-cache -t pentest-mcp:latest .
-```
-
----
-
-## Security Notes
-
-- Server runs as non-root user `pentester` inside the container
-- `no-new-privileges` security option is set
-- All inputs are sanitized to block shell injection
-- `NET_RAW` and `NET_ADMIN` capabilities are granted only to nmap as needed
+> KaliAI is an educational tool. All penetration testing must be performed only on systems where you have explicit written permission.

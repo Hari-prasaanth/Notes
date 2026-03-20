@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KaliAI — Pentesting Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0b0f1a;--bg2:#111827;--bg3:#1a2236;--bg4:#212d42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --accent:#3b82f6;--accent2:#2563eb;
+  --green:#10b981;--green2:rgba(16,185,129,0.15);
+  --red:#ef4444;--red2:rgba(239,68,68,0.15);
+  --amber:#f59e0b;--amber2:rgba(245,158,11,0.15);
+  --cyan:#06b6d4;--purple:#8b5cf6;--pink:#ec4899;--orange:#f97316;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
+  --term-bg:#050a05;--term-green:#00ff88;--term-dim:#1a3a1a;
+  --font-d:'Syne',sans-serif;--font-m:'JetBrains Mono',monospace;--font-b:'DM Sans',sans-serif;
+  --r:10px;--rl:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* ── HEADER ── */
+header{position:relative;z-index:10;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 16px rgba(59,130,246,.3);flex-shrink:0;}
+.logo-title{font-family:var(--font-d);font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.5px;}
+.logo-title span{color:var(--accent);}
+.logo-tag{font-size:10px;color:var(--text3);font-family:var(--font-m);letter-spacing:1px;margin-top:1px;}
+.hdr-mid{display:flex;align-items:center;gap:8px;}
+.model-sel{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;padding:5px 10px;transition:all .2s;}
+.model-sel:hover{border-color:var(--accent);}
+.model-sel select{background:none;border:none;outline:none;color:var(--text);font-family:var(--font-m);font-size:11px;cursor:pointer;}
+.model-sel select option{background:var(--bg3);}
+.model-lbl{font-family:var(--font-m);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.spill{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-family:var(--font-m);font-size:10px;color:var(--text3);transition:all .3s;}
+.spill.on{border-color:rgba(16,185,129,.3);color:var(--green);background:var(--green2);}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--text3);transition:all .3s;animation:sp 2s ease-in-out infinite;}
+@keyframes sp{0%,100%{opacity:1}50%{opacity:.35}}
+.btn-cfg{display:flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-family:var(--font-d);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-cfg:hover{background:var(--accent2);box-shadow:0 0 16px rgba(59,130,246,.4);transform:translateY(-1px);}
+
+/* ── OUTER LAYOUT ── */
+.outer{display:flex;flex:1;overflow:hidden;position:relative;z-index:1;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sb-search-wrap{padding:10px 10px 6px;}
+.sb-search{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 9px;color:var(--text);font-family:var(--font-m);font-size:11px;outline:none;transition:border-color .2s;}
+.sb-search:focus{border-color:var(--accent);}
+.sb-search::placeholder{color:var(--text3);}
+.sb-body{flex:1;overflow-y:auto;padding:4px 6px;}
+.sb-body::-webkit-scrollbar{width:2px;}
+.sb-body::-webkit-scrollbar-thumb{background:var(--border2);}
+.cat-hdr{display:flex;align-items:center;gap:6px;padding:8px 6px 3px;cursor:pointer;user-select:none;}
+.cat-ico{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.cat-nm{font-family:var(--font-d);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;flex:1;}
+.cat-cnt{font-family:var(--font-m);font-size:9px;color:var(--text3);background:var(--bg3);padding:1px 5px;border-radius:8px;}
+.cat-tog{font-size:9px;color:var(--text3);transition:transform .2s;}
+.cat-hdr.collapsed .cat-tog{transform:rotate(-90deg);}
+.cat-tools{display:flex;flex-direction:column;gap:1px;margin-bottom:2px;}
+.cat-tools.hidden{display:none;}
+.tbtn{display:flex;align-items:center;gap:7px;width:100%;padding:6px 8px;background:none;border:1px solid transparent;border-radius:6px;cursor:pointer;transition:all .15s;text-align:left;}
+.tbtn:hover{background:var(--bg3);border-color:var(--border);}
+.tbtn:active{transform:scale(.98);}
+.tbi{width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.tbn{font-family:var(--font-m);font-size:10.5px;color:var(--text);display:block;}
+.tbd{font-size:9.5px;color:var(--text3);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:148px;}
+.ic-blue{background:rgba(59,130,246,.15);color:#60a5fa;}
+.ic-green{background:rgba(16,185,129,.15);color:#34d399;}
+.ic-amber{background:rgba(245,158,11,.15);color:#fbbf24;}
+.ic-red{background:rgba(239,68,68,.15);color:#f87171;}
+.ic-purple{background:rgba(139,92,246,.15);color:#a78bfa;}
+.ic-cyan{background:rgba(6,182,212,.15);color:#22d3ee;}
+.ic-pink{background:rgba(236,72,153,.15);color:#f472b6;}
+.ic-orange{background:rgba(249,115,22,.15);color:#fb923c;}
+.ic-white{background:rgba(255,255,255,.07);color:#94a3b8;}
+.sb-bottom{padding:10px;border-top:1px solid var(--border);}
+.target-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 11px;}
+.tc-lbl{font-family:var(--font-m);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.tc-val{font-family:var(--font-m);font-size:12px;color:var(--amber);display:flex;align-items:center;gap:4px;}
+.tc-val::before{content:'▶';font-size:8px;}
+
+/* ── CENTER: CHAT + TERMINAL ── */
+.center{flex:1;display:flex;overflow:hidden;}
+
+/* CHAT PANEL */
+.chat-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.messages{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth;}
+.messages::-webkit-scrollbar{width:3px;}
+.messages::-webkit-scrollbar-thumb{background:var(--border2);}
+
+/* WELCOME */
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:30px 20px;}
+.w-hero{width:64px;height:64px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 0 30px rgba(59,130,246,.3);animation:hf 4s ease-in-out infinite;}
+@keyframes hf{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+.welcome h1{font-family:var(--font-d);font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--text);}
+.welcome h1 span{color:var(--accent);}
+.w-sub{color:var(--text2);font-size:13px;max-width:380px;line-height:1.7;}
+.w-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:460px;width:100%;}
+.wc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;cursor:pointer;transition:all .2s;text-align:left;}
+.wc:hover{border-color:var(--accent);background:var(--bg3);transform:translateY(-2px);box-shadow:0 6px 20px rgba(59,130,246,.12);}
+.wc-ic{font-size:16px;margin-bottom:5px;}
+.wc-t{font-family:var(--font-d);font-size:11px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.wc-d{font-size:10px;color:var(--text3);line-height:1.4;}
+
+/* MESSAGES */
+.msg{display:flex;gap:10px;animation:mi .22s ease;max-width:100%;}
+@keyframes mi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;flex-direction:row-reverse;}
+.msg-av{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:1px solid var(--border);}
+.msg.user .msg-av{background:var(--bg4);}
+.msg.assistant .msg-av{background:linear-gradient(135deg,var(--accent),var(--purple));border:none;box-shadow:0 0 10px rgba(59,130,246,.25);}
+.msg.tool-call .msg-av{background:var(--amber2);border-color:rgba(245,158,11,.3);}
+.msg-body{flex:1;min-width:0;}
+.msg-meta{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.msg.user .msg-meta{flex-direction:row-reverse;}
+.msg-name{font-family:var(--font-d);font-size:11px;font-weight:700;}
+.msg.user .msg-name{color:var(--text3);}
+.msg.assistant .msg-name{color:var(--accent);}
+.msg.tool-call .msg-name{color:var(--amber);}
+.msg-time{font-family:var(--font-m);font-size:9px;color:var(--text3);}
+.msg-bubble{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:11px 15px;font-size:13px;line-height:1.75;color:var(--text);word-break:break-word;}
+.msg.user .msg-bubble{background:var(--accent);border:none;border-radius:var(--rl) 4px var(--rl) var(--rl);color:#fff;}
+.msg.assistant .msg-bubble{border-radius:4px var(--rl) var(--rl) var(--rl);}
+.msg.tool-call .msg-bubble{background:var(--amber2);border-color:rgba(245,158,11,.22);font-family:var(--font-m);font-size:11px;color:var(--amber);}
+.msg-bubble pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;overflow-x:auto;font-family:var(--font-m);font-size:11px;color:#7dd3fc;margin:7px 0;line-height:1.6;}
+.msg-bubble code{font-family:var(--font-m);font-size:11px;color:var(--cyan);background:rgba(6,182,212,.1);padding:1px 5px;border-radius:3px;}
+.msg-bubble pre code{background:none;color:#7dd3fc;padding:0;}
+.typing-dots{display:flex;gap:4px;align-items:center;padding:4px 0;}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.4;animation:td 1.2s ease-in-out infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s}
+.typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,80%,100%{opacity:.4;transform:scale(1)}40%{opacity:1;transform:scale(1.3)}}
+
+/* INPUT */
+.input-bar{padding:12px 18px 14px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;}
+.input-wrap{display:flex;align-items:flex-end;gap:8px;background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--rl);padding:8px 10px 8px 14px;transition:all .2s;}
+.input-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+.input-wrap textarea{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font-b);font-size:13px;resize:none;max-height:120px;min-height:20px;line-height:1.6;}
+.input-wrap textarea::placeholder{color:var(--text3);}
+.input-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.btn-stop{display:none;align-items:center;gap:5px;background:var(--red2);border:1px solid rgba(239,68,68,.35);color:var(--red);border-radius:7px;padding:6px 12px;font-family:var(--font-d);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-stop:hover{background:var(--red);color:#fff;border-color:var(--red);}
+.btn-stop.vis{display:flex;}
+.btn-send{background:var(--accent);border:none;border-radius:7px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#fff;transition:all .2s;flex-shrink:0;}
+.btn-send:hover{background:var(--accent2);box-shadow:0 0 14px rgba(59,130,246,.4);transform:scale(1.05);}
+.btn-send:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed;transform:none;box-shadow:none;}
+.input-hint{font-family:var(--font-m);font-size:9.5px;color:var(--text3);margin-top:6px;padding:0 2px;}
+
+/* ── TERMINAL PANEL ── */
+.term-panel{width:46%;flex-shrink:0;background:var(--term-bg);border-left:1px solid rgba(0,255,136,.12);display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.term-panel::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,.008) 2px,rgba(0,255,136,.008) 4px);pointer-events:none;z-index:0;}
+.term-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:rgba(0,0,0,.4);border-bottom:1px solid rgba(0,255,136,.1);flex-shrink:0;position:relative;z-index:1;}
+.term-title{display:flex;align-items:center;gap:8px;font-family:var(--font-m);font-size:11px;color:var(--term-green);letter-spacing:1px;}
+.term-dots{display:flex;gap:5px;}
+.tdot{width:10px;height:10px;border-radius:50%;}
+.tdot.r{background:#ff5f56;}
+.tdot.y{background:#ffbd2e;}
+.tdot.g{background:#27c93f;}
+.term-actions{display:flex;gap:6px;}
+.term-btn{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.15);color:var(--term-green);border-radius:5px;padding:4px 10px;font-family:var(--font-m);font-size:10px;cursor:pointer;transition:all .2s;}
+.term-btn:hover{background:rgba(0,255,136,.15);border-color:rgba(0,255,136,.3);}
+.term-status{display:flex;align-items:center;gap:5px;font-family:var(--font-m);font-size:10px;}
+.term-status-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
+.term-status-dot.running{background:var(--term-green);box-shadow:0 0 6px var(--term-green);animation:sp 1s ease-in-out infinite;}
+.term-status-dot.done{background:#60a5fa;box-shadow:0 0 4px #60a5fa;animation:none;}
+.term-status-dot.error{background:var(--red);box-shadow:0 0 4px var(--red);animation:none;}
+.term-body{flex:1;overflow-y:auto;padding:12px 14px;font-family:var(--font-m);font-size:11.5px;line-height:1.65;color:#b0d8b0;position:relative;z-index:1;}
+.term-body::-webkit-scrollbar{width:3px;}
+.term-body::-webkit-scrollbar-thumb{background:rgba(0,255,136,.2);}
+.term-line{white-space:pre-wrap;word-break:break-all;margin-bottom:1px;}
+.term-line.cmd{color:var(--term-green);font-weight:500;}
+.term-line.cmd::before{content:'❯ ';color:rgba(0,255,136,.5);}
+.term-line.stdout{color:#c8e6c9;}
+.term-line.stderr{color:#ffab91;}
+.term-line.install{color:#ffd54f;}
+.term-line.install::before{content:'📦 ';}
+.term-line.install_ok{color:var(--term-green);}
+.term-line.install_ok::before{content:'✅ ';}
+.term-line.install_fail{color:var(--red);}
+.term-line.install_fail::before{content:'❌ ';}
+.term-line.warn{color:#ffb300;}
+.term-line.warn::before{content:'⚠ ';}
+.term-line.fatal{color:var(--red);}
+.term-line.info{color:#80cbc4;}
+.term-line.info::before{content:'ℹ ';}
+.term-line.section{color:var(--term-green);border-top:1px solid rgba(0,255,136,.1);margin-top:6px;padding-top:6px;}
+.term-cursor{display:inline-block;width:8px;height:14px;background:var(--term-green);animation:blink .8s step-end infinite;vertical-align:text-bottom;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.term-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:rgba(0,255,136,.25);font-family:var(--font-m);font-size:12px;text-align:center;}
+.term-empty-icon{font-size:36px;opacity:.3;}
+.term-resize{width:4px;background:var(--border);cursor:col-resize;flex-shrink:0;transition:background .2s;}
+.term-resize:hover{background:rgba(59,130,246,.4);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(11,15,26,.9);backdrop-filter:blur(8px);z-index:100;display:none;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:480px;max-width:95vw;box-shadow:0 8px 48px rgba(0,0,0,.6);animation:mod .22s ease;}
+@keyframes mod{from{opacity:0;transform:scale(.96)translateY(-8px)}to{opacity:1;transform:scale(1)translateY(0)}}
+.modal-hdr{display:flex;align-items:center;gap:11px;margin-bottom:20px;}
+.modal-ic{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;}
+.modal-t{font-family:var(--font-d);font-size:18px;font-weight:800;color:var(--text);}
+.modal-s{font-size:12px;color:var(--text3);margin-top:1px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-family:var(--font-m);font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;}
+.field input,.field select{width:100%;background:var(--bg3);border:1.5px solid var(--border2);border-radius:7px;padding:9px 12px;color:var(--text);font-family:var(--font-m);font-size:12px;outline:none;transition:border-color .2s;appearance:none;}
+.field input:focus,.field select:focus{border-color:var(--accent);}
+.field input::placeholder{color:var(--text3);}
+.field select option{background:var(--bg3);}
+.modal-footer{display:flex;gap:8px;margin-top:22px;}
+.btn-primary{flex:1;background:var(--accent);color:#fff;border:none;border-radius:7px;padding:10px;font-family:var(--font-d);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-primary:hover{background:var(--accent2);box-shadow:0 0 18px rgba(59,130,246,.4);}
+.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:7px;padding:10px 16px;font-family:var(--font-b);font-size:13px;cursor:pointer;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--text2);color:var(--text);}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:10px 15px;font-family:var(--font-m);font-size:11px;color:var(--green);z-index:200;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:ti .25s ease;display:flex;align-items:center;gap:6px;}
+.toast.err{color:var(--red);border-color:rgba(239,68,68,.3);}
+@keyframes ti{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">⚔️</div>
+    <div>
+      <div class="logo-title">Kali<span>AI</span></div>
+      <div class="logo-tag">PENTESTING INTELLIGENCE PLATFORM</div>
+    </div>
+  </div>
+  <div class="hdr-mid">
+    <div class="model-sel">
+      <span class="model-lbl">Model</span>
+      <select id="modelSelect" onchange="onModelChange()">
+        <option value="gpt-4o">GPT-4o</option>
+        <option value="gpt-4o-mini">GPT-4o Mini</option>
+        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+        <option value="gpt-4">GPT-4</option>
+        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+        <option value="o1-preview">o1 Preview</option>
+        <option value="o1-mini">o1 Mini</option>
+      </select>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="spill" id="mcpPill"><div class="sdot" id="mcpDot"></div><span id="mcpLbl">MCP Offline</span></div>
+    <div class="spill" id="aiPill"><div class="sdot" id="aiDot"></div><span id="aiLbl">AI Ready</span></div>
+    <button class="btn-cfg" onclick="openSettings()">⚙ Configure</button>
+  </div>
+</header>
+
+<div class="outer">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-search-wrap">
+      <input class="sb-search" id="toolSearch" placeholder="🔍 Search tools..." oninput="filterTools(this.value)"/>
+    </div>
+    <div class="sb-body" id="sbBody">
+
+      <!-- RECON -->
+      <div class="cat-hdr" onclick="toggleCat(this)" data-cat="recon">
+        <div class="cat-ico ic-blue">🔭</div>
+        <span class="cat-nm" style="color:#60a5fa">Recon</span>
+        <span class="cat-cnt">15</span><span class="cat-tog">▾</span>
+      </div>
+      <div class="cat-tools" id="cat-recon">
+        <button class="tbtn" data-tip="ping " onclick="ins('ping ')"><div class="tbi ic-green">📡</div><div><span class="tbn">ping_host</span><span class="tbd">Host alive check</span></div></button>
+        <button class="tbtn" data-tip="nmap scan on " onclick="ins('nmap scan on ')"><div class="tbi ic-blue">🔍</div><div><span class="tbn">nmap_scan</span><span class="tbd">Port & service detection</span></div></button>
+        <button class="tbtn" data-tip="masscan " onclick="ins('masscan ')"><div class="tbi ic-blue">⚡</div><div><span class="tbn">masscan</span><span class="tbd">Ultra-fast port scanner</span></div></button>
+        <button class="tbtn" data-tip="arp scan on interface eth0" onclick="ins('arp scan on interface eth0')"><div class="tbi ic-cyan">📶</div><div><span class="tbn">arp_scan</span><span class="tbd">LAN host discovery</span></div></button>
+        <button class="tbtn" data-tip="netdiscover on " onclick="ins('netdiscover on ')"><div class="tbi ic-cyan">🕵️</div><div><span class="tbn">netdiscover</span><span class="tbd">Passive ARP discovery</span></div></button>
+        <button class="tbtn" data-tip="dns lookup on " onclick="ins('dns lookup on ')"><div class="tbi ic-purple">🌐</div><div><span class="tbn">dns_lookup</span><span class="tbd">A/MX/NS/TXT records</span></div></button>
+        <button class="tbtn" data-tip="dnsrecon on " onclick="ins('dnsrecon on ')"><div class="tbi ic-purple">🔎</div><div><span class="tbn">dnsrecon</span><span class="tbd">Deep DNS recon</span></div></button>
+        <button class="tbtn" data-tip="fierce domain " onclick="ins('fierce domain ')"><div class="tbi ic-amber">💨</div><div><span class="tbn">fierce</span><span class="tbd">DNS subdomain brute-force</span></div></button>
+        <button class="tbtn" data-tip="sublist3r on " onclick="ins('sublist3r on ')"><div class="tbi ic-amber">🗺️</div><div><span class="tbn">sublist3r</span><span class="tbd">Subdomain OSINT enum</span></div></button>
+        <button class="tbtn" data-tip="theHarvester on " onclick="ins('theHarvester on ')"><div class="tbi ic-orange">🌾</div><div><span class="tbn">theHarvester</span><span class="tbd">Email/host OSINT</span></div></button>
+        <button class="tbtn" data-tip="whois lookup on " onclick="ins('whois lookup on ')"><div class="tbi ic-white">📋</div><div><span class="tbn">whois_lookup</span><span class="tbd">Domain registration info</span></div></button>
+        <button class="tbtn" data-tip="whatweb " onclick="ins('whatweb ')"><div class="tbi ic-green">🧩</div><div><span class="tbn">whatweb</span><span class="tbd">Web tech stack detection</span></div></button>
+        <button class="tbtn" data-tip="wafw00f " onclick="ins('wafw00f ')"><div class="tbi ic-red">🛡️</div><div><span class="tbn">wafw00f</span><span class="tbd">WAF detection</span></div></button>
+        <button class="tbtn" data-tip="sslyze on " onclick="ins('sslyze on ')"><div class="tbi ic-cyan">🔒</div><div><span class="tbn">sslyze</span><span class="tbd">SSL/TLS analyser</span></div></button>
+        <button class="tbtn" data-tip="testssl on " onclick="ins('testssl on ')"><div class="tbi ic-cyan">🔐</div><div><span class="tbn">testssl</span><span class="tbd">TLS comprehensive check</span></div></button>
+      </div>
+
+      <!-- WEB APP -->
+      <div class="cat-hdr" onclick="toggleCat(this)" data-cat="webapp">
+        <div class="cat-ico ic-amber">🕸️</div>
+        <span class="cat-nm" style="color:#fbbf24">Web App</span>
+        <span class="cat-cnt">15</span><span class="cat-tog">▾</span>
+      </div>
+      <div class="cat-tools" id="cat-webapp">
+        <button class="tbtn" onclick="ins('nikto scan on http://')"><div class="tbi ic-amber">🔬</div><div><span class="tbn">nikto_scan</span><span class="tbd">Web vulnerability scanner</span></div></button>
+        <button class="tbtn" onclick="ins('gobuster dir on http://')"><div class="tbi ic-blue">📁</div><div><span class="tbn">gobuster_dir</span><span class="tbd">Directory brute-force</span></div></button>
+        <button class="tbtn" onclick="ins('gobuster vhost on http://')"><div class="tbi ic-blue">🏠</div><div><span class="tbn">gobuster_vhost</span><span class="tbd">Virtual host brute-force</span></div></button>
+        <button class="tbtn" onclick="ins('feroxbuster on http://')"><div class="tbi ic-orange">🐾</div><div><span class="tbn">feroxbuster</span><span class="tbd">Recursive dir discovery</span></div></button>
+        <button class="tbtn" onclick="ins('ffuf on http://')"><div class="tbi ic-purple">⚡</div><div><span class="tbn">ffuf</span><span class="tbd">Fast web fuzzer</span></div></button>
+        <button class="tbtn" onclick="ins('wfuzz on http://')"><div class="tbi ic-purple">🌀</div><div><span class="tbn">wfuzz</span><span class="tbd">Param & header fuzzer</span></div></button>
+        <button class="tbtn" onclick="ins('dirb on http://')"><div class="tbi ic-white">📂</div><div><span class="tbn">dirb_scan</span><span class="tbd">Classic dir brute-force</span></div></button>
+        <button class="tbtn" onclick="ins('sqlmap on http://')"><div class="tbi ic-red">💉</div><div><span class="tbn">sqlmap_scan</span><span class="tbd">SQL injection tester</span></div></button>
+        <button class="tbtn" onclick="ins('xsstrike on http://')"><div class="tbi ic-pink">✂️</div><div><span class="tbn">xsstrike</span><span class="tbd">Advanced XSS scanner</span></div></button>
+        <button class="tbtn" onclick="ins('dalfox on http://')"><div class="tbi ic-pink">🦊</div><div><span class="tbn">dalfox</span><span class="tbd">XSS parameter analyser</span></div></button>
+        <button class="tbtn" onclick="ins('commix on http://')"><div class="tbi ic-red">💥</div><div><span class="tbn">commix</span><span class="tbd">Command injection scanner</span></div></button>
+        <button class="tbtn" onclick="ins('nuclei on ')"><div class="tbi ic-green">☢️</div><div><span class="tbn">nuclei</span><span class="tbd">Template-based vuln scan</span></div></button>
+        <button class="tbtn" onclick="ins('wpscan on http://')"><div class="tbi ic-blue">🔑</div><div><span class="tbn">wpscan</span><span class="tbd">WordPress enumeration</span></div></button>
+        <button class="tbtn" onclick="ins('curl request to http://')"><div class="tbi ic-cyan">🌀</div><div><span class="tbn">curl_request</span><span class="tbd">Custom HTTP request</span></div></button>
+        <button class="tbtn" onclick="ins('jwt_tool on token ')"><div class="tbi ic-amber">🎫</div><div><span class="tbn">jwt_tool</span><span class="tbd">JWT analyser & attacker</span></div></button>
+      </div>
+
+      <!-- NETWORK -->
+      <div class="cat-hdr" onclick="toggleCat(this)" data-cat="network">
+        <div class="cat-ico ic-green">🔗</div>
+        <span class="cat-nm" style="color:#34d399">Network</span>
+        <span class="cat-cnt">14</span><span class="cat-tog">▾</span>
+      </div>
+      <div class="cat-tools" id="cat-network">
+        <button class="tbtn" onclick="ins('enum4linux on ')"><div class="tbi ic-amber">🪟</div><div><span class="tbn">enum4linux</span><span class="tbd">SMB/NetBIOS enum</span></div></button>
+        <button class="tbtn" onclick="ins('smbmap on ')"><div class="tbi ic-amber">📂</div><div><span class="tbn">smbmap</span><span class="tbd">SMB share enum</span></div></button>
+        <button class="tbtn" onclick="ins('smbclient on ')"><div class="tbi ic-white">💼</div><div><span class="tbn">smbclient</span><span class="tbd">SMB client & share access</span></div></button>
+        <button class="tbtn" onclick="ins('nbtscan on ')"><div class="tbi ic-white">📛</div><div><span class="tbn">nbtscan</span><span class="tbd">NetBIOS name scanner</span></div></button>
+        <button class="tbtn" onclick="ins('crackmapexec smb ')"><div class="tbi ic-red">🗺️</div><div><span class="tbn">crackmapexec</span><span class="tbd">SMB/LDAP/SSH sweep</span></div></button>
+        <button class="tbtn" onclick="ins('snmpwalk on ')"><div class="tbi ic-cyan">🐾</div><div><span class="tbn">snmpwalk</span><span class="tbd">SNMP enumeration</span></div></button>
+        <button class="tbtn" onclick="ins('onesixtyone on ')"><div class="tbi ic-cyan">📟</div><div><span class="tbn">onesixtyone</span><span class="tbd">SNMP community scanner</span></div></button>
+        <button class="tbtn" onclick="ins('smtp user enum on ')"><div class="tbi ic-purple">✉️</div><div><span class="tbn">smtp_user_enum</span><span class="tbd">SMTP user enumeration</span></div></button>
+        <button class="tbtn" onclick="ins('hydra brute force ssh on ')"><div class="tbi ic-red">🔨</div><div><span class="tbn">hydra</span><span class="tbd">Online password brute-force</span></div></button>
+        <button class="tbtn" onclick="ins('medusa brute force ssh on ')"><div class="tbi ic-red">🐍</div><div><span class="tbn">medusa</span><span class="tbd">Parallel brute-forcer</span></div></button>
+        <button class="tbtn" onclick="ins('ncrack on ')"><div class="tbi ic-red">🔓</div><div><span class="tbn">ncrack</span><span class="tbd">Network auth cracker</span></div></button>
+        <button class="tbtn" onclick="ins('responder on interface eth0')"><div class="tbi ic-orange">📢</div><div><span class="tbn">responder</span><span class="tbd">LLMNR/NBT-NS poisoner</span></div></button>
+        <button class="tbtn" onclick="ins('tcpdump on interface eth0')"><div class="tbi ic-blue">🦈</div><div><span class="tbn">tcpdump</span><span class="tbd">Packet capture</span></div></button>
+        <button class="tbtn" onclick="ins('curl headers of http://')"><div class="tbi ic-cyan">📋</div><div><span class="tbn">curl_headers</span><span class="tbd">Fetch HTTP headers</span></div></button>
+      </div>
+
+      <!-- UTILS -->
+      <div class="cat-hdr" onclick="toggleCat(this)" data-cat="utils">
+        <div class="cat-ico ic-white">🛠️</div>
+        <span class="cat-nm" style="color:#94a3b8">Utils</span>
+        <span class="cat-cnt">2</span><span class="cat-tog">▾</span>
+      </div>
+      <div class="cat-tools" id="cat-utils">
+        <button class="tbtn" onclick="ins('searchsploit ')"><div class="tbi ic-orange">💥</div><div><span class="tbn">searchsploit</span><span class="tbd">Search Exploit-DB</span></div></button>
+        <button class="tbtn" onclick="ins('run command: ')"><div class="tbi ic-purple">⌨️</div><div><span class="tbn">run_command</span><span class="tbd">Custom shell command</span></div></button>
+      </div>
+    </div>
+    <div class="sb-bottom">
+      <div class="target-card">
+        <div class="tc-lbl">Active Target</div>
+        <div class="tc-val" id="activeTarget">Not configured</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center">
+
+    <!-- CHAT PANEL -->
+    <div class="chat-panel">
+      <div class="messages" id="messages">
+        <div class="welcome" id="welcome">
+          <div class="w-hero">⚔️</div>
+          <h1>Welcome to <span>KaliAI</span></h1>
+          <p class="w-sub">AI-powered pentesting with live terminal output. Watch every command execute in real-time on the right panel.</p>
+          <div class="w-cards">
+            <div class="wc" onclick="sq('Scan 172.18.0.4 for open ports and explain all findings')"><div class="wc-ic">🔍</div><div class="wc-t">Port Scan</div><div class="wc-d">nmap service detection</div></div>
+            <div class="wc" onclick="sq('Run nikto on http://172.18.0.4 and explain vulnerabilities')"><div class="wc-ic">🌐</div><div class="wc-t">Web Recon</div><div class="wc-d">Nikto vuln scan</div></div>
+            <div class="wc" onclick="sq('Enumerate SMB on 172.18.0.4 using enum4linux and smbmap')"><div class="wc-ic">🔗</div><div class="wc-t">SMB Enum</div><div class="wc-d">enum4linux + smbmap</div></div>
+            <div class="wc" onclick="sq('Run gobuster on http://172.18.0.4 and explain hidden dirs')"><div class="wc-ic">📁</div><div class="wc-t">Dir Fuzzing</div><div class="wc-d">Gobuster brute-force</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="input-bar">
+        <div class="input-wrap">
+          <textarea id="userInput" rows="1"
+            placeholder="Ask me to run any tool — output appears in the terminal →"
+            onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <div class="input-actions">
+            <button class="btn-stop" id="stopBtn" onclick="stopGen()">⏹ Stop</button>
+            <button class="btn-send" id="sendBtn" onclick="send()">➤</button>
+          </div>
+        </div>
+        <div class="input-hint">Enter to send · Shift+Enter for newline · Tool output streams live in the terminal →</div>
+      </div>
+    </div>
+
+    <!-- RESIZE HANDLE -->
+    <div class="term-resize" id="resizeHandle"></div>
+
+    <!-- TERMINAL PANEL -->
+    <div class="term-panel" id="termPanel">
+      <div class="term-header">
+        <div class="term-dots">
+          <div class="tdot r"></div>
+          <div class="tdot y"></div>
+          <div class="tdot g"></div>
+        </div>
+        <div class="term-title">
+          <span>KALI TERMINAL</span>
+          <div class="term-status">
+            <div class="term-status-dot" id="termStatusDot"></div>
+            <span id="termStatusTxt" style="color:var(--text3)">idle</span>
+          </div>
+        </div>
+        <div class="term-actions">
+          <button class="term-btn" onclick="clearTerm()">Clear</button>
+          <button class="term-btn" onclick="copyTerm()">Copy</button>
+        </div>
+      </div>
+      <div class="term-body" id="termBody">
+        <div class="term-empty" id="termEmpty">
+          <div class="term-empty-icon">⌨️</div>
+          <div>Terminal ready</div>
+          <div style="font-size:10px;opacity:.6">Commands stream here as they run</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /center -->
+</div><!-- /outer -->
+
+<!-- SETTINGS MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-ic">⚙️</div>
+      <div><div class="modal-t">Configuration</div><div class="modal-s">Connect your OpenAI API and Kali MCP server</div></div>
+    </div>
+    <div class="field"><label>OpenAI API Key</label><input type="password" id="cfgKey" placeholder="sk-proj-..." autocomplete="off"/></div>
+    <div class="field"><label>Kali MCP Server URL</label><input type="text" id="cfgMcp" placeholder="http://192.168.88.129:3001"/></div>
+    <div class="field"><label>Default AI Model</label>
+      <select id="cfgModel">
+        <option value="gpt-4o">GPT-4o — Best for complex analysis</option>
+        <option value="gpt-4o-mini">GPT-4o Mini — Faster & cheaper</option>
+        <option value="gpt-4-turbo">GPT-4 Turbo — Large context</option>
+        <option value="gpt-4">GPT-4 — Reliable</option>
+        <option value="gpt-3.5-turbo">GPT-3.5 Turbo — Fastest</option>
+        <option value="o1-preview">o1 Preview — Deep reasoning</option>
+        <option value="o1-mini">o1 Mini — Efficient reasoning</option>
+      </select>
+    </div>
+    <div class="field"><label>Default Target</label><input type="text" id="cfgTarget" placeholder="e.g. 172.18.0.4 or crapi.apisec.ai"/></div>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="saveSettings()">Save & Connect</button>
+      <button class="btn-secondary" onclick="closeSettings()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────────────────────
+let cfg={key:ls('oai_key')||'',mcp:ls('mcp_url')||'http://localhost:3001',model:ls('ai_model')||'gpt-4o',target:ls('def_target')||''};
+let hist=[],busy=false,abortCtrl=null,termLines=[];
+
+function ls(k){return localStorage.getItem(k);}
+function lss(k,v){localStorage.setItem(k,v);}
+
+window.addEventListener('load',()=>{
+  applyCfg();
+  if(cfg.key) setAI(true);
+  if(cfg.mcp) pingMCP();
+  if(!cfg.key) setTimeout(openSettings,600);
+  initResize();
+});
+
+function applyCfg(){
+  document.getElementById('modelSelect').value=cfg.model;
+  if(cfg.target) document.getElementById('activeTarget').textContent=cfg.target;
+}
+function openSettings(){
+  document.getElementById('cfgKey').value=cfg.key;
+  document.getElementById('cfgMcp').value=cfg.mcp;
+  document.getElementById('cfgModel').value=cfg.model;
+  document.getElementById('cfgTarget').value=cfg.target;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeSettings(){document.getElementById('overlay').classList.remove('open');}
+function saveSettings(){
+  cfg.key=document.getElementById('cfgKey').value.trim();
+  cfg.mcp=document.getElementById('cfgMcp').value.trim().replace(/\/$/,'');
+  cfg.model=document.getElementById('cfgModel').value;
+  cfg.target=document.getElementById('cfgTarget').value.trim();
+  lss('oai_key',cfg.key);lss('mcp_url',cfg.mcp);lss('ai_model',cfg.model);lss('def_target',cfg.target);
+  applyCfg();closeSettings();if(cfg.key)setAI(true);pingMCP();toast('Configuration saved ✓');
+}
+function onModelChange(){cfg.model=document.getElementById('modelSelect').value;lss('ai_model',cfg.model);toast('Model: '+cfg.model);}
+
+// ── MCP ───────────────────────────────────────────────────────────────────
+async function pingMCP(){
+  try{const r=await fetch(cfg.mcp+'/health',{signal:AbortSignal.timeout(5000)});const d=await r.json();setMCP(d.status==='online');}
+  catch{setMCP(false);}
+}
+function setMCP(on){
+  const p=document.getElementById('mcpPill'),d=document.getElementById('mcpDot');
+  p.className='spill'+(on?' on':'');d.style.background=on?'var(--green)':'var(--text3)';d.style.boxShadow=on?'0 0 5px var(--green)':'none';
+  document.getElementById('mcpLbl').textContent=on?'MCP Online':'MCP Offline';
+}
+function setAI(on){
+  const p=document.getElementById('aiPill'),d=document.getElementById('aiDot');
+  p.className='spill'+(on?' on':'');d.style.background=on?'var(--green)':'var(--text3)';d.style.boxShadow=on?'0 0 5px var(--green)':'none';
+  document.getElementById('aiLbl').textContent=on?'AI Ready':'AI Offline';
+}
+
+// ── TERMINAL ──────────────────────────────────────────────────────────────
+function termWrite(type, text){
+  const body=document.getElementById('termBody');
+  const empty=document.getElementById('termEmpty');
+  if(empty) empty.style.display='none';
+  const lines=String(text).split('\n');
+  lines.forEach(line=>{
+    if(!line && lines.length>1) return;
+    const d=document.createElement('div');
+    d.className='term-line '+type;
+    d.textContent=line;
+    body.appendChild(d);
+    termLines.push({type,line});
+  });
+  body.scrollTop=body.scrollHeight;
+}
+function termSection(label){
+  termWrite('section','── '+label+' '+'─'.repeat(Math.max(0,40-label.length)));
+}
+function setTermStatus(s){
+  const dot=document.getElementById('termStatusDot');
+  const txt=document.getElementById('termStatusTxt');
+  dot.className='term-status-dot '+s;
+  const map={running:'running...',done:'done',error:'error',idle:'idle'};
+  txt.textContent=map[s]||s;
+  txt.style.color=s==='running'?'var(--term-green)':s==='done'?'#60a5fa':s==='error'?'var(--red)':'var(--text3)';
+}
+function clearTerm(){
+  const b=document.getElementById('termBody');
+  b.innerHTML='<div class="term-empty" id="termEmpty"><div class="term-empty-icon">⌨️</div><div>Terminal cleared</div></div>';
+  termLines=[];
+  setTermStatus('idle');
+}
+function copyTerm(){
+  const text=termLines.map(l=>l.line).join('\n');
+  navigator.clipboard.writeText(text).then(()=>toast('Terminal output copied!'));
+}
+
+// ── SSE streaming tool runner ─────────────────────────────────────────────
+function runToolStreaming(toolName, params){
+  return new Promise((resolve)=>{
+    setTermStatus('running');
+    const url=cfg.mcp+'/tools/'+toolName+'?stream=1';
+    let fullOutput='';
+    let settled=false;
+
+    function done(success){
+      if(settled) return;
+      settled=true;
+      setTermStatus(success?'done':'error');
+      resolve({success, output:fullOutput});
+    }
+
+    fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'text/event-stream'},
+      body:JSON.stringify(params),
+    }).then(resp=>{
+      if(!resp.ok){
+        resp.json().then(e=>{
+          termWrite('stderr','Error: '+(e.error||'request failed'));
+          done(false);
+        }).catch(()=>{ termWrite('stderr','Request failed: '+resp.status); done(false); });
+        return;
+      }
+      const reader=resp.body.getReader();
+      const decoder=new TextDecoder();
+      let buf='';
+
+      function pump(){
+        reader.read().then(({done:streamDone, value})=>{
+          if(streamDone){ done(true); return; }
+          buf+=decoder.decode(value,{stream:true});
+          const parts=buf.split('\n\n');
+          buf=parts.pop();
+          parts.forEach(part=>{
+            if(!part.startsWith('data:')) return;
+            try{
+              const ev=JSON.parse(part.slice(5).trim());
+              if(ev.type==='cmd')          { termSection(toolName); termWrite('cmd',ev.data); }
+              else if(ev.type==='session') { currentSessionId=ev.data; }
+              else if(ev.type==='stdout')  { termWrite('stdout',ev.data); fullOutput+=ev.data; }
+              else if(ev.type==='stderr')  { termWrite('stderr',ev.data); fullOutput+=ev.data; }
+              else if(ev.type==='install') { termWrite('install',ev.data); }
+              else if(ev.type==='install_ok')  { termWrite('install_ok',ev.data); }
+              else if(ev.type==='install_fail'){ termWrite('install_fail',ev.data); }
+              else if(ev.type==='warn')    { termWrite('warn',ev.data); }
+              else if(ev.type==='info')    { termWrite('info',ev.data); }
+              else if(ev.type==='fatal')   { termWrite('stderr','💀 '+ev.data); done(false); }
+              else if(ev.type==='done')    { done(ev.data?.code===0); }
+              else if(ev.type==='error')   { termWrite('stderr','⚠ '+ev.data); done(false); }
+            }catch(e){}
+          });
+          pump();
+        }).catch(err=>{
+          // Stream ended abruptly (user stopped, timeout, etc.) — not an error loop
+          if(!settled){
+            if(err.name==='AbortError'||String(err).includes('aborted')){
+              termWrite('warn','Stream closed.');
+            }
+            done(false);
+          }
+        });
+      }
+      pump();
+    }).catch(err=>{
+      if(!settled){
+        if(err.name!=='AbortError'){
+          termWrite('stderr','Connection error: '+err.message);
+          setMCP(false);
+        }
+        done(false);
+      }
+    });
+  });
+}
+
+// ── Fetch tool docs for self-healing ──────────────────────────────────────
+async function fetchToolDocs(toolName){
+  try{
+    const r=await fetch(cfg.mcp+'/docs/'+toolName);
+    const d=await r.json();
+    return d.doc||'';
+  }catch{return '';}
+}
+
+// ── GPT tool definitions ──────────────────────────────────────────────────
+const TDEFS=[
+  {type:'function',function:{name:'ping_host',description:'Ping host',parameters:{type:'object',properties:{target:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'nmap_scan',description:'nmap port scan',parameters:{type:'object',properties:{target:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'masscan',description:'Fast port scanner',parameters:{type:'object',properties:{target:{type:'string'},ports:{type:'string'},rate:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'arp_scan',description:'ARP LAN discovery',parameters:{type:'object',properties:{interface:{type:'string'},range:{type:'string'}},required:[]}}},
+  {type:'function',function:{name:'netdiscover',description:'Passive ARP discovery',parameters:{type:'object',properties:{interface:{type:'string'},range:{type:'string'}},required:[]}}},
+  {type:'function',function:{name:'dns_lookup',description:'DNS enum',parameters:{type:'object',properties:{target:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'dnsrecon',description:'Deep DNS recon',parameters:{type:'object',properties:{target:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'fierce',description:'DNS subdomain brute-force',parameters:{type:'object',properties:{domain:{type:'string'}},required:['domain']}}},
+  {type:'function',function:{name:'sublist3r',description:'Subdomain OSINT',parameters:{type:'object',properties:{domain:{type:'string'}},required:['domain']}}},
+  {type:'function',function:{name:'theharvester',description:'Email/host OSINT',parameters:{type:'object',properties:{domain:{type:'string'},source:{type:'string'}},required:['domain']}}},
+  {type:'function',function:{name:'whois_lookup',description:'WHOIS lookup',parameters:{type:'object',properties:{target:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'whatweb',description:'Web tech detection',parameters:{type:'object',properties:{url:{type:'string'},aggression:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'wafw00f',description:'WAF detection',parameters:{type:'object',properties:{url:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'sslyze',description:'SSL/TLS analyser',parameters:{type:'object',properties:{host:{type:'string'},flags:{type:'string'}},required:['host']}}},
+  {type:'function',function:{name:'testssl',description:'TLS checker',parameters:{type:'object',properties:{host:{type:'string'}},required:['host']}}},
+  {type:'function',function:{name:'nikto_scan',description:'Nikto web vuln scan',parameters:{type:'object',properties:{target:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'gobuster_dir',description:'Gobuster directory brute-force',parameters:{type:'object',properties:{url:{type:'string'},wordlist:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'gobuster_vhost',description:'Gobuster vhost brute-force',parameters:{type:'object',properties:{url:{type:'string'},wordlist:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'feroxbuster',description:'Recursive content discovery',parameters:{type:'object',properties:{url:{type:'string'},wordlist:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'ffuf',description:'Fast web fuzzer',parameters:{type:'object',properties:{url:{type:'string'},wordlist:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'wfuzz',description:'Web param fuzzer',parameters:{type:'object',properties:{url:{type:'string'},wordlist:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'dirb_scan',description:'dirb dir brute-force',parameters:{type:'object',properties:{url:{type:'string'},wordlist:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'sqlmap_scan',description:'SQL injection tester',parameters:{type:'object',properties:{url:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'xsstrike',description:'XSS scanner',parameters:{type:'object',properties:{url:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'dalfox',description:'XSS param analyser',parameters:{type:'object',properties:{url:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'commix',description:'Command injection scanner',parameters:{type:'object',properties:{url:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'nuclei',description:'Template-based vuln scanner',parameters:{type:'object',properties:{target:{type:'string'},templates:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'wpscan',description:'WordPress scanner',parameters:{type:'object',properties:{url:{type:'string'},flags:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'curl_request',description:'Custom HTTP request',parameters:{type:'object',properties:{url:{type:'string'},method:{type:'string'},headers:{type:'string'},data:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'jwt_tool',description:'JWT analyser',parameters:{type:'object',properties:{token:{type:'string'},flags:{type:'string'}},required:['token']}}},
+  {type:'function',function:{name:'enum4linux',description:'SMB/NetBIOS enum',parameters:{type:'object',properties:{target:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'smbmap',description:'SMB share enum',parameters:{type:'object',properties:{target:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'smbclient',description:'SMB client',parameters:{type:'object',properties:{target:{type:'string'},share:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'nbtscan',description:'NetBIOS scanner',parameters:{type:'object',properties:{range:{type:'string'}},required:['range']}}},
+  {type:'function',function:{name:'crackmapexec',description:'SMB/LDAP/SSH sweep',parameters:{type:'object',properties:{protocol:{type:'string'},target:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'snmpwalk',description:'SNMP enum',parameters:{type:'object',properties:{target:{type:'string'},community:{type:'string'},version:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'onesixtyone',description:'SNMP community scanner',parameters:{type:'object',properties:{target:{type:'string'},wordlist:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'smtp_user_enum',description:'SMTP user enum',parameters:{type:'object',properties:{target:{type:'string'},wordlist:{type:'string'},mode:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'hydra',description:'Password brute-force',parameters:{type:'object',properties:{target:{type:'string'},service:{type:'string'},user:{type:'string'},wordlist:{type:'string'},flags:{type:'string'}},required:['target','service']}}},
+  {type:'function',function:{name:'medusa',description:'Parallel brute-forcer',parameters:{type:'object',properties:{target:{type:'string'},service:{type:'string'},user:{type:'string'},wordlist:{type:'string'},flags:{type:'string'}},required:['target','service']}}},
+  {type:'function',function:{name:'ncrack',description:'Network auth cracker',parameters:{type:'object',properties:{target:{type:'string'},service:{type:'string'},flags:{type:'string'}},required:['target']}}},
+  {type:'function',function:{name:'responder',description:'LLMNR/NBT-NS poisoner',parameters:{type:'object',properties:{interface:{type:'string'},flags:{type:'string'}},required:[]}}},
+  {type:'function',function:{name:'tcpdump',description:'Packet capture',parameters:{type:'object',properties:{interface:{type:'string'},filter:{type:'string'},count:{type:'string'}},required:[]}}},
+  {type:'function',function:{name:'searchsploit',description:'Search Exploit-DB',parameters:{type:'object',properties:{query:{type:'string'}},required:['query']}}},
+  {type:'function',function:{name:'curl_headers',description:'Fetch HTTP headers',parameters:{type:'object',properties:{url:{type:'string'}},required:['url']}}},
+  {type:'function',function:{name:'run_command',description:'Run shell command on Kali',parameters:{type:'object',properties:{command:{type:'string'}},required:['command']}}},
+];
+
+async function callGPT(msgs){
+  abortCtrl=new AbortController();
+  const isO1=cfg.model.startsWith('o1');
+  const body={model:cfg.model,messages:msgs,temperature:isO1?1:0.3};
+  if(!isO1){body.tools=TDEFS;body.tool_choice='auto';}
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cfg.key},
+    body:JSON.stringify(body),signal:abortCtrl.signal,
+  });
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+  return r.json();
+}
+
+// ── SELF-HEALING AGENT LOOP ───────────────────────────────────────────────
+async function agentLoop(userText){
+  const MAX_RETRIES=2;
+
+  const sysPrompt=`You are KaliAI, expert pentesting AI assistant for a student lab with 46 Kali Linux tools available via function calls. Commands execute on a real Kali Linux machine and output streams to a live terminal.
+
+IMPORTANT RULES:
+1. If a tool is not installed, the server auto-installs it — you will see install output in the terminal. Wait and retry.
+2. If a tool fails (bad flags, wrong syntax, permission error), fetch the tool's documentation from GET /docs/<toolname> using run_command with 'curl ${cfg.mcp}/docs/<toolname>', then retry with correct flags.
+3. Always explain what each command does BEFORE running it, and analyze the output AFTER.
+4. This is an educational environment — explain findings clearly for students.
+5. On errors, diagnose what went wrong and self-correct.
+${cfg.target?'Default target: '+cfg.target+'.':''}`;
+
+  hist.push({role:'system',content:sysPrompt});
+  hist.push({role:'user',content:userText});
+
+  const typ=addTyping();
+  try{
+    let resp=await callGPT(hist);
+    setAI(true);
+
+    while(resp.choices[0].finish_reason==='tool_calls'){
+      typ.remove();
+      const msg=resp.choices[0].message;
+      hist.push(msg);
+
+      for(const tc of msg.tool_calls){
+        const fn=tc.function.name;
+        const args=JSON.parse(tc.function.arguments);
+        addToolCall(fn,args);
+
+        let toolOut;
+        let retries=0;
+        let lastError='';
+
+        while(retries<=MAX_RETRIES){
+          // stream the tool
+          toolOut=await runToolStreaming(fn,args);
+          const output=toolOut.output||'';
+
+          // detect common failure patterns
+          const isNotFound=output.includes('command not found')||output.includes('not found')||output.includes('No such file');
+          const isSyntaxErr=output.includes('invalid option')||output.includes('unrecognized')||output.includes('usage:')||output.includes('Usage:');
+          const isPermErr=output.includes('Operation not permitted')||output.includes('Permission denied');
+
+          if(isNotFound && retries<MAX_RETRIES){
+            termWrite('warn',`Tool not found. Attempting auto-install... (attempt ${retries+1})`);
+            await runToolStreaming('run_command',{command:`DEBIAN_FRONTEND=noninteractive apt-get install -y ${fn.replace(/_scan$/,'').replace(/_/g,'-')} 2>&1 || pip3 install ${fn.replace(/_scan$/,'').replace(/_/g,'-')} --break-system-packages 2>&1`});
+            retries++;
+            // retry the original tool call again (don't push tool result yet)
+            toolOut=await runToolStreaming(fn,args);
+            continue;
+          }
+
+          if(isSyntaxErr && retries<MAX_RETRIES){
+            termWrite('info',`Syntax error detected. Fetching documentation...`);
+            const docs=await fetchToolDocs(fn.replace(/_scan$/,'').replace(/_dir$/,'').replace(/_vhost$/,''));
+            if(docs){
+              termWrite('info','Docs: '+docs);
+              termWrite('info',`Retrying with corrected flags...`);
+              // Push result of failed call first (required by OpenAI), then correction as user message
+              hist.push({role:'tool',tool_call_id:tc.id,content:`Failed with error: ${toolOut.output||'syntax error'}. Tool documentation: ${docs}. Please retry with corrected flags.`});
+              const fixResp=await callGPT(hist);
+              if(fixResp.choices[0].finish_reason==='tool_calls'){
+                const fixMsg=fixResp.choices[0].message;
+                hist.push(fixMsg);
+                const fixTc=fixMsg.tool_calls[0];
+                const fixArgs=JSON.parse(fixTc.function.arguments);
+                termWrite('info',`Retrying with corrected flags: ${JSON.stringify(fixArgs)}`);
+                toolOut=await runToolStreaming(fixTc.function.name,fixArgs);
+                hist.push({role:'tool',tool_call_id:fixTc.id,content:toolOut.output||'(no output)'});
+                break;
+              } else {
+                // GPT gave a text response instead of tool call - still need to close current tool call
+                hist.push({role:'tool',tool_call_id:tc.id,content:toolOut.output||'(error)'});
+              }
+            } else {
+              hist.push({role:'tool',tool_call_id:tc.id,content:toolOut.output||'(syntax error)'});
+            }
+            retries++;
+            continue;
+          }
+
+          // success or unrecoverable error
+          break;
+        }
+
+        const finalOut=toolOut.output||'(no output)';
+        // Only push tool result if it wasn't already pushed inside the self-healing block
+        const lastHist=hist[hist.length-1];
+        if(!(lastHist && lastHist.role==='tool' && lastHist.tool_call_id===tc.id)){
+          hist.push({role:'tool',tool_call_id:tc.id,content:finalOut});
+        }
+      }
+
+      const t2=addTyping();
+      resp=await callGPT(hist);
+      t2.remove();
+    }
+
+    typ.remove();
+    const txt=resp.choices[0].message.content;
+    hist.push({role:'assistant',content:txt});
+    addMsg('assistant',txt);
+
+  }catch(e){
+    typ.remove();
+    if(e.name==='AbortError') addMsg('assistant','⏹ Stopped.');
+    else{addMsg('assistant','❌ **Error:** '+e.message);if(e.message.includes('key')||e.message.includes('auth'))setAI(false);}
+  }
+}
+
+// ── Send ──────────────────────────────────────────────────────────────────
+async function send(){
+  const inp=document.getElementById('userInput');
+  const text=inp.value.trim();
+  if(!text||busy)return;
+  if(!cfg.key){openSettings();return;}
+  inp.value='';inp.style.height='auto';
+  hideWelcome();setBusy(true);
+  addMsg('user',text);
+  await agentLoop(text);
+  setBusy(false);
+}
+let currentSessionId = null;
+
+function stopGen(){
+  fetch(cfg.mcp+'/kill', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(currentSessionId ? {sessionId: currentSessionId} : {})
+  }).catch(()=>{});
+  if(abortCtrl) abortCtrl.abort();
+  currentSessionId = null;
+  setBusy(false);
+  setTermStatus('idle');
+  termWrite('warn','⏹ Stopped — all running processes killed on Kali.');
+}
+function sq(t){document.getElementById('userInput').value=t;send();}
+function ins(h){const i=document.getElementById('userInput');i.value=h;i.focus();autoResize(i);}
+
+// ── UI helpers ────────────────────────────────────────────────────────────
+function setBusy(v){busy=v;document.getElementById('sendBtn').disabled=v;document.getElementById('stopBtn').className='btn-stop'+(v?' vis':'');}
+function hideWelcome(){const w=document.getElementById('welcome');if(w)w.style.display='none';}
+function now(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});}
+
+function addMsg(role,text){
+  const w=document.getElementById('messages'),d=document.createElement('div');
+  d.className='msg '+role;
+  const av={user:'👤',assistant:'🤖'}[role]||'🤖';
+  const nm={user:'Operator',assistant:'KaliAI'}[role]||role;
+  d.innerHTML=`<div class="msg-av">${av}</div><div class="msg-body"><div class="msg-meta"><span class="msg-name">${nm}</span><span class="msg-time">${now()}</span></div><div class="msg-bubble">${fmt(text)}</div></div>`;
+  w.appendChild(d);w.scrollTop=w.scrollHeight;return d;
+}
+function addToolCall(name,args){
+  const w=document.getElementById('messages'),d=document.createElement('div');
+  d.className='msg tool-call';
+  d.innerHTML=`<div class="msg-av">⚡</div><div class="msg-body"><div class="msg-meta"><span class="msg-name">Invoking</span><span class="msg-time">${now()}</span></div><div class="msg-bubble">⚡ <strong>${name}</strong>(${esc(JSON.stringify(args))})</div></div>`;
+  w.appendChild(d);w.scrollTop=w.scrollHeight;
+}
+function addTyping(){
+  const w=document.getElementById('messages'),d=document.createElement('div');
+  d.className='msg assistant';
+  d.innerHTML=`<div class="msg-av">🤖</div><div class="msg-body"><div class="msg-meta"><span class="msg-name">KaliAI</span></div><div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div></div>`;
+  w.appendChild(d);w.scrollTop=w.scrollHeight;return d;
+}
+function fmt(t){
+  return esc(t)
+    .replace(/```(\w*)\n?([\s\S]*?)```/g,'<pre><code>$2</code></pre>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/\n/g,'<br/>');
+}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function toast(msg,err=false){
+  const el=document.createElement('div');el.className='toast'+(err?' err':'');el.textContent=(err?'✗ ':'✓ ')+msg;
+  document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
+}
+function toggleCat(hdr){hdr.classList.toggle('collapsed');document.getElementById('cat-'+hdr.dataset.cat).classList.toggle('hidden');}
+function filterTools(q){
+  const lq=q.toLowerCase();
+  document.querySelectorAll('.tbtn').forEach(b=>{
+    const n=b.querySelector('.tbn').textContent.toLowerCase();
+    const d=b.querySelector('.tbd').textContent.toLowerCase();
+    b.style.display=(n.includes(lq)||d.includes(lq)||!lq)?'flex':'none';
+  });
+  if(lq){document.querySelectorAll('.cat-tools').forEach(c=>c.classList.remove('hidden'));document.querySelectorAll('.cat-hdr').forEach(h=>h.classList.remove('collapsed'));}
+}
+
+// ── Resize handle ─────────────────────────────────────────────────────────
+function initResize(){
+  const handle=document.getElementById('resizeHandle');
+  const term=document.getElementById('termPanel');
+  let dragging=false,startX=0,startW=0;
+  handle.addEventListener('mousedown',e=>{dragging=true;startX=e.clientX;startW=term.offsetWidth;document.body.style.cursor='col-resize';document.body.style.userSelect='none';});
+  document.addEventListener('mousemove',e=>{if(!dragging)return;const delta=startX-e.clientX;const newW=Math.min(Math.max(startW+delta,200),800);term.style.width=newW+'px';term.style.flexShrink='0';});
+  document.addEventListener('mouseup',()=>{dragging=false;document.body.style.cursor='';document.body.style.userSelect='';});
+}
+</script>
+</body>
+</html>

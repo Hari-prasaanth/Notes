@@ -980,7 +980,7 @@ process.on("unhandledRejection", (reason) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`\n🔥  KaliAI MCP Server v3.2  →  http://0.0.0.0:${PORT}`);
+  console.log(`\n🔥  KaliAI MCP Server v3.2  →  http://localhost:${PORT}`);
   console.log(`📡  Streaming: SSE enabled on all endpoints`);
   console.log(`🔒  Root tools: ${[...NEEDS_ROOT].join(", ")}`);
   console.log(`🔧  Auto-install: ${Object.keys(INSTALL).length} tools covered`);

@@ -1,269 +1,130 @@
-# ⚔️ KaliAI — Pentesting Intelligence Platform
+<div align="center">
 
-> An AI-powered pentesting assistant that connects GPT-4o to your Kali Linux machine via a local MCP server, with a live streaming terminal, auto-install, and self-healing agent capabilities. Built for teaching students offensive security.
+# 🐉 KaliAI MCP Pentest Tool
 
----
+**A containerized AI-powered pentesting assistant built on the Model Context Protocol**
 
-## 📸 What It Does
+[![Docker](https://img.shields.io/badge/Docker-hariprasaanth%2Fkaliai-2496ED?style=flat-square&logo=docker&logoColor=white)](https://hub.docker.com/r/hariprasaanth/kaliai)
+[![Node.js](https://img.shields.io/badge/Node.js-MCP%20Server-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Kali Linux](https://img.shields.io/badge/Kali_Linux-Full%20Suite-557C94?style=flat-square&logo=kalilinux&logoColor=white)](https://www.kali.org)
+[![License](https://img.shields.io/badge/License-Ethical%20Use%20Only-red?style=flat-square)](#%EF%B8%8F-security--legal-warning)
 
-- 💬 **Chat with GPT-4o** to run any Kali Linux tool using natural language
-- 🖥️ **Live terminal panel** streams real command output as it runs
-- 📦 **Auto-installs missing tools** via `apt` or `pip` on the fly
-- 🔧 **Self-healing agent** — if a tool fails, it fetches docs and retries with corrected flags
-- ⏹️ **Stop button** kills both the AI stream and the running process on Kali instantly
-- 🔀 **Switch AI models** — GPT-4o, GPT-4o Mini, GPT-4 Turbo, o1, and more
-- 🧰 **46 tools** across Recon, Web App, Network, and Utils categories
+> Run a full **Kali Linux** security suite with an integrated **Node.js MCP server** for automated, AI-assisted security workflows — all in a single Docker container.
 
----
-
-## 🏗️ Architecture
-
-```
-[ Browser — index.html ]
-        ↕  HTTP / SSE
-[ MCP Server — server.js ]   ← runs on your Kali Linux VM/Docker
-        ↕  exec / spawn
-[ Kali Tools: nmap, nikto, gobuster, sqlmap, hydra... ]
-
-[ Browser ] ←→ [ OpenAI GPT-4o API ]  (direct from browser)
-```
-
-The web app is served **by** the MCP server itself at `http://<kali-ip>:3001` — this avoids all CORS and mixed-content issues.
+</div>
 
 ---
 
-## 🚀 Setup
+## 📖 Overview
 
-### 1. On Your Kali Linux Machine
+This repository provides a containerized environment and server-side implementation for **KaliAI** — a pentesting assistant leveraging the [Model Context Protocol (MCP)](https://modelcontextprotocol.io). It combines the power of Kali Linux's security toolkit with an AI-driven server layer, enabling intelligent, automated security testing pipelines.
+
+---
+
+## ⚡ Quick Start
+
+### 1. 🐳 Pull the Docker Image
+
+The `kaliai` image comes pre-configured with all necessary security tools and environment variables.
 
 ```bash
-# Create project folder
-mkdir -p ~/Desktop/Agent && cd ~/Desktop/Agent
+docker pull hariprasaanth/kaliai
+```
 
-# Install Node.js dependencies
+### 2. 🚀 Run the Container
+
+Run the container in interactive mode with privileged access to allow network scanning and tool execution.
+
+```bash
+docker run -it --rm --privileged -p 3001:3001 hariprasaanth/kaliai:latest /bin/bash
+```
+
+| Flag | Description |
+|------|-------------|
+| `-it` | Interactive terminal |
+| `--rm` | Auto-remove container on exit |
+| `--privileged` | Grants access to host network stack *(required for many Kali tools)* |
+| `-p 3001:3001` | Maps the MCP server port for communication |
+
+---
+
+## 🛠️ Local Setup & Development
+
+Once inside the container (or on your local machine), follow these steps to set up the MCP server.
+
+### 3. 📦 Clone the Repository
+
+```bash
+git clone https://github.com/Hari-prasaanth/pentest-mcp.git
+cd pentest-mcp
+```
+
+### 4. 🟢 Install Node.js and NPM
+
+If NPM is not already installed, use the official installer:
+
+```bash
+curl -L https://www.npmjs.com/install.sh | sh
+```
+
+### 5. 📥 Initialize and Install Dependencies
+
+Set up the Node.js environment and install the Express framework.
+
+```bash
 npm init -y
-npm install express cors
+npm install express
+```
 
-# Copy server.js and index.html into this folder
-# Then start the server
+### 6. ▶️ Start the Server
+
+Run the MCP server to begin handling requests.
+
+```bash
 node server.js
 ```
 
-You should see:
-```
-🔥  KaliAI MCP Server v3.0  →  http://0.0.0.0:3001
-📡  Streaming: SSE enabled on all tool endpoints
-🔧  Auto-install: 40+ tools covered
-📖  Self-heal docs: GET /docs/<toolname>
-```
-
-### 2. Open the Web App
-
-Open your browser and go to:
-```
-http://localhost:3001
-```
-
-Or from another machine on the same network:
-```
-http://192.168.88.129:3001   ← replace with your Kali IP
-```
-
-> ⚠️ **Do NOT open `index.html` directly as a `file://` URL** — the browser will block all API calls due to CORS policy. Always access via `http://`.
-
-### 3. Configure
-
-Click **⚙ Configure** in the top right and enter:
-
-| Field | Value |
-|---|---|
-| **OpenAI API Key** | Your `sk-proj-...` key from platform.openai.com |
-| **Kali MCP Server URL** | `http://localhost:3001` (or your Kali IP) |
-| **Default AI Model** | GPT-4o (recommended) |
-| **Default Target** | e.g. `172.18.0.4` or `crapi.apisec.ai` |
-
-Click **Save & Connect**. The **MCP Online** and **AI Ready** indicators in the header should both turn green.
+The server will start listening on **port 3001** and is ready to accept MCP requests. 🎯
 
 ---
 
-## 🧰 Available Tools
+## 🗂️ Project Structure
 
-### 🔭 Recon (15)
-| Tool | Description |
-|---|---|
-| `ping_host` | Check if host is alive |
-| `nmap_scan` | Port & service detection |
-| `masscan` | Ultra-fast port scanner |
-| `arp_scan` | LAN host discovery |
-| `netdiscover` | Passive ARP discovery |
-| `dns_lookup` | A / MX / NS / TXT records |
-| `dnsrecon` | Deep DNS recon & zone transfer |
-| `fierce` | DNS subdomain brute-force |
-| `sublist3r` | Subdomain OSINT enumeration |
-| `theHarvester` | Email & host OSINT |
-| `whois_lookup` | Domain registration info |
-| `whatweb` | Web tech stack detection |
-| `wafw00f` | WAF detection |
-| `sslyze` | SSL/TLS configuration analyser |
-| `testssl` | Comprehensive TLS checker |
+```
+pentest-mcp/
+├── 🖥️  server.js          # Entry point for the MCP pentest server
+├── 📦  package.json       # Node.js dependencies and scripts
+└── 📁  src/               # MCP protocol implementation source
+```
 
-### 🕸️ Web App (15)
-| Tool | Description |
-|---|---|
-| `nikto_scan` | Web vulnerability scanner |
-| `gobuster_dir` | Directory brute-force |
-| `gobuster_vhost` | Virtual host brute-force |
-| `feroxbuster` | Recursive content discovery |
-| `ffuf` | Fast web fuzzer |
-| `wfuzz` | Parameter & header fuzzer |
-| `dirb_scan` | Classic directory brute-force |
-| `sqlmap_scan` | SQL injection tester |
-| `xsstrike` | Advanced XSS scanner |
-| `dalfox` | XSS parameter analyser |
-| `commix` | Command injection scanner |
-| `nuclei` | Template-based vulnerability scanner |
-| `wpscan` | WordPress enumeration |
-| `curl_request` | Custom HTTP request |
-| `jwt_tool` | JWT token analyser & attacker |
-
-### 🔗 Network (14)
-| Tool | Description |
-|---|---|
-| `enum4linux` | SMB / NetBIOS enumeration |
-| `smbmap` | SMB share enumeration |
-| `smbclient` | SMB client & share access |
-| `nbtscan` | NetBIOS name scanner |
-| `crackmapexec` | SMB / LDAP / SSH network sweep |
-| `snmpwalk` | SNMP enumeration |
-| `onesixtyone` | SNMP community string scanner |
-| `smtp_user_enum` | SMTP user enumeration |
-| `hydra` | Online password brute-force |
-| `medusa` | Modular parallel brute-forcer |
-| `ncrack` | Network authentication cracker |
-| `responder` | LLMNR / NBT-NS poisoner (analyse mode) |
-| `tcpdump` | Packet capture |
-| `curl_headers` | Fetch HTTP response headers |
-
-### 🛠️ Utils (2)
-| Tool | Description |
-|---|---|
-| `searchsploit` | Search Exploit-DB |
-| `run_command` | Run any custom shell command |
+| Component | Description |
+|-----------|-------------|
+| `hariprasaanth/kaliai` | Base Docker image with the full Kali Linux toolset |
+| `server.js` | Entry point for the MCP pentest server |
+| `pentest-mcp/` | Source code for the Model Context Protocol implementation |
 
 ---
 
-## ✨ Features In Detail
+## ⚠️ Security & Legal Warning
 
-### Live Terminal Streaming
-Every tool streams its output character-by-character to the terminal panel on the right. Color coding:
-- 🟢 Green — stdout (normal output)
-- 🔴 Red/Orange — stderr (errors)
-- 🟡 Yellow — auto-install in progress
-- 🔵 Blue — info / self-healing messages
+> [!CAUTION]
+> **Usage of this tool for attacking targets without prior mutual consent is illegal.**
 
-### Auto-Install
-If a tool isn't installed when the AI calls it, the server automatically installs it:
-```
-📦 'gobuster' not found. Installing...
-$ apt-get install -y gobuster
-...
-✅ gobuster installed successfully.
-```
-The tool then runs immediately after install — no manual steps needed.
-
-### Self-Healing Agent
-If a tool fails due to bad flags or wrong syntax:
-1. The agent detects the error pattern (e.g. `unrecognized arguments`)
-2. It fetches documentation from `GET /docs/<toolname>`
-3. The docs are injected into the GPT conversation
-4. GPT re-issues the tool call with corrected parameters
-5. The corrected command runs automatically
-
-### Stop Button
-Pressing **⏹ Stop** simultaneously:
-- Aborts the OpenAI API stream
-- Sends `POST /kill` to the MCP server
-- Kills the running process **and its entire process group** on Kali with `SIGKILL`
-- Works even for long-running tools like `ffuf`, `hydra`, or `nuclei`
+- 🔴 Only use this tool on systems you **own** or have **explicit written permission** to test.
+- 🔴 The end user is solely responsible for compliance with all applicable **local, state, and federal laws**.
+- 🔴 Developers **assume no liability** and are not responsible for any misuse or damage caused by this program.
+- 🟢 This tool is intended for **authorized penetration testing**, **CTF challenges**, **security research**, and **educational purposes** only.
 
 ---
 
-## 💬 Example Prompts
+## 🤝 Contributing
 
-```
-Scan 172.18.0.4 for open ports and explain all findings
-Run nikto on http://172.18.0.4 and explain the vulnerabilities
-Do a full recon on crapi.apisec.ai — DNS, WHOIS, subdomains, WAF
-Run gobuster on http://172.18.0.4 and find hidden directories
-Enumerate SMB shares on 172.18.0.4 using enum4linux and smbmap
-Test http://crapi.apisec.ai/login for SQL injection
-Explain the OWASP API Top 10 with real examples
-Search for exploits for vsftpd 2.3.4 and explain how to use them
-Run a full nuclei scan on http://172.18.0.4
-```
+Contributions, issues, and feature requests are welcome! Feel free to open a [pull request](https://github.com/Hari-prasaanth/pentest-mcp/pulls) or file an [issue](https://github.com/Hari-prasaanth/pentest-mcp/issues).
 
 ---
 
-## 🔌 API Endpoints
+<div align="center">
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/` | Serves the web app (index.html) |
-| `GET` | `/health` | Server health & tool list |
-| `GET` | `/docs/:tool` | Tool usage documentation |
-| `POST` | `/tools/:name` | Run a tool (streaming with `?stream=1`) |
-| `POST` | `/run` | Run arbitrary command with streaming |
-| `POST` | `/kill` | Kill running process by sessionId or all |
+Made with ☕ and 🔐 by [Hari Prasaanth](https://github.com/Hari-prasaanth)
 
-All tool endpoints support **SSE streaming** when called with `?stream=1` or `Accept: text/event-stream`.
-
----
-
-## ⚠️ Security Notes
-
-- The MCP server exposes a `run_command` endpoint — **keep it on your local/lab network only**
-- Never expose port `3001` to the internet
-- Only scan systems you have **explicit permission** to test
-- This tool is designed for **educational use** in a controlled lab environment
-- The `responder` tool runs in **analyse mode (`-A`) only** by default — it listens but does not poison
-
----
-
-## 📁 File Structure
-
-```
-~/Desktop/Agent/
-├── server.js       ← MCP server (runs on Kali)
-├── index.html      ← Web app (served by server.js)
-├── package.json
-└── node_modules/
-```
-
----
-
-## 🛠️ Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| MCP shows Offline | Make sure `node server.js` is running and the URL in Config is correct |
-| Terminal stays idle | You opened `index.html` as `file://` — access via `http://localhost:3001` instead |
-| Tool not found error | The agent auto-installs it — or run `apt-get install -y <tool>` manually |
-| OpenAI API error | Check your API key in ⚙ Configure — must start with `sk-` |
-| Stop doesn't kill terminal | Make sure you're on the latest `server.js` with the `/kill` endpoint |
-| `tool role` OpenAI error | Update to the latest `index.html` — self-healing logic has been fixed |
-| SSE stream drops during install | Update to latest `server.js` — heartbeat keepalive now runs during long installs |
-
----
-
-## 📦 Dependencies
-
-```json
-{
-  "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5"
-  }
-}
-```
-
-Node.js v18+ recommended.
+</div>

@@ -28,7 +28,7 @@ This repository provides a containerized environment and server-side implementat
 The `kaliai` image comes pre-configured with all necessary security tools and environment variables.
 
 ```bash
-docker pull hariprasaanth/kaliai
+sudo docker pull hariprasaanth/kali-pentest:latest
 ```
 
 ### 2. 🚀 Run the Container
@@ -36,7 +36,7 @@ docker pull hariprasaanth/kaliai
 Run the container in interactive mode with privileged access to allow network scanning and tool execution.
 
 ```bash
-docker run -it --rm --privileged -p 3001:3001 hariprasaanth/kaliai:latest /bin/bash
+sudo docker run -it --rm --privileged -p 3001:3001 hariprasaanth/kali-pentest:latest /bin/bash
 ```
 
 | Flag | Description |

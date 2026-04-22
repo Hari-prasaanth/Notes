@@ -52,8 +52,8 @@ Once inside the container (or on your local machine), follow these steps to set 
 ### 3. 📦 Clone the Repository
 
 ```bash
-git clone https://github.com/Hari-prasaanth/pentest-mcp.git
-cd pentest-mcp
+git clone https://github.com/Hari-prasaanth/Notes.git
+cd Notes
 ```
 
 ### 4. 🟢 Install Node.js and NPM

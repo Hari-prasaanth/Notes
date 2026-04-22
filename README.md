@@ -96,7 +96,7 @@ pentest-mcp/
 
 | Component | Description |
 |-----------|-------------|
-| `hariprasaanth/kaliai` | Base Docker image with the full Kali Linux toolset |
+| `hariprasaanth/notes` | Base Docker image with the full Kali Linux toolset |
 | `server.js` | Entry point for the MCP pentest server |
 | `pentest-mcp/` | Source code for the Model Context Protocol implementation |
 

@@ -1,15 +1,13 @@
 <div align="center">
 
-# 🐉 KaliAI MCP Pentest Tool
+# Model Context Protocol
 
-**A containerized AI-powered pentesting assistant built on the Model Context Protocol**
 
 [![Docker](https://img.shields.io/badge/Docker-hariprasaanth%2Fkaliai-2496ED?style=flat-square&logo=docker&logoColor=white)](https://hub.docker.com/r/hariprasaanth/kaliai)
 [![Node.js](https://img.shields.io/badge/Node.js-MCP%20Server-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org)
 [![Kali Linux](https://img.shields.io/badge/Kali_Linux-Full%20Suite-557C94?style=flat-square&logo=kalilinux&logoColor=white)](https://www.kali.org)
 [![License](https://img.shields.io/badge/License-Ethical%20Use%20Only-red?style=flat-square)](#%EF%B8%8F-security--legal-warning)
 
-> Run a full **Kali Linux** security suite with an integrated **Node.js MCP server** for automated, AI-assisted security workflows — all in a single Docker container.
 
 </div>
 
@@ -17,9 +15,8 @@
 
 ## 📖 Overview
 
-This repository provides a containerized environment and server-side implementation for **KaliAI** — a pentesting assistant leveraging the [Model Context Protocol (MCP)](https://modelcontextprotocol.io). It combines the power of Kali Linux's security toolkit with an AI-driven server layer, enabling intelligent, automated security testing pipelines.
+The Model Context Protocol (MCP) is an open standard and open-source framework introduced by Anthropic in November 2024 to standardize the way artificial intelligence (AI) systems like large language models (LLMs) integrate and share data with external tools, systems, and data sources. MCP provides a universal interface for reading files, executing functions, and handling contextual prompts. Following its announcement, the protocol was adopted by major AI providers, including OpenAI and Google DeepMind.
 
----
 
 ## ⚡ Quick Start
 
@@ -103,28 +100,4 @@ pentest-mcp/
 | `server.js` | Entry point for the MCP pentest server |
 | `pentest-mcp/` | Source code for the Model Context Protocol implementation |
 
----
 
-## ⚠️ Security & Legal Warning
-
-> [!CAUTION]
-> **Usage of this tool for attacking targets without prior mutual consent is illegal.**
-
-- 🔴 Only use this tool on systems you **own** or have **explicit written permission** to test.
-- 🔴 The end user is solely responsible for compliance with all applicable **local, state, and federal laws**.
-- 🔴 Developers **assume no liability** and are not responsible for any misuse or damage caused by this program.
-- 🟢 This tool is intended for **authorized penetration testing**, **CTF challenges**, **security research**, and **educational purposes** only.
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to open a [pull request](https://github.com/Hari-prasaanth/pentest-mcp/pulls) or file an [issue](https://github.com/Hari-prasaanth/pentest-mcp/issues).
-
----
-
-<div align="center">
-
-Made with ☕ and 🔐 by [Hari Prasaanth](https://github.com/Hari-prasaanth)
-
-</div>

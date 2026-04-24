@@ -60,10 +60,6 @@ cd Notes
 
 If NPM is not already installed, use the official installer:
 
-```bash
-curl -L https://www.npmjs.com/install.sh | sh
-```
-
 Install Node
 ```sh
 curl -fsSL https://nodejs.org/dist/v20.11.1/node-v20.11.1-linux-x64.tar.xz -o node.tar.xz
@@ -73,6 +69,9 @@ mv node-v20.11.1-linux-x64 nodejs
 
 ```sh
 export PATH=$PWD/nodejs/bin:$PATH
+```
+```bash
+curl -L https://www.npmjs.com/install.sh | sh
 ```
 
 ### 5. 📥 Initialize and Install Dependencies

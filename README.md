@@ -25,7 +25,7 @@ The Model Context Protocol (MCP) is an open standard and open-source framework i
 The `kaliai` image comes pre-configured with all necessary security tools and environment variables.
 
 ```bash
-sudo docker push hariprasaanth/notes:latest
+sudo docker pull hariprasaanth/notes:latest
 ```
 
 ### 2. 🚀 Run the Container

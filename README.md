@@ -64,6 +64,17 @@ If NPM is not already installed, use the official installer:
 curl -L https://www.npmjs.com/install.sh | sh
 ```
 
+Install Node
+```sh
+curl -fsSL https://nodejs.org/dist/v20.11.1/node-v20.11.1-linux-x64.tar.xz -o node.tar.xz
+tar -xf node.tar.xz
+mv node-v20.11.1-linux-x64 nodejs
+```
+
+```sh
+export PATH=$PWD/nodejs/bin:$PATH
+```
+
 ### 5. 📥 Initialize and Install Dependencies
 
 Set up the Node.js environment and install the Express framework.
